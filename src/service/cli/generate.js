@@ -1,11 +1,11 @@
 'use strict';
 
-const fs = require(`fs`);
-const {getRandomInt, shuffle} = require(`../../utils`);
+const {getRandomInt, shuffle, writeFileJson} = require(`../../utils`);
 
 const DEFAULT_NUMBERS = {
   DEFAULT_COUNT: 1,
-  TEN: 10
+  TEN: 10,
+  MAX_COUNT_OFFERS: 1000
 };
 
 const FILE_NAME = `mocks.json`;
@@ -59,16 +59,23 @@ const PictureRestrict = {
   MAX: 16
 };
 
-const getPictureFileName = (number) => `item${number < DEFAULT_NUMBERS.TEN ? `0${number}` : number}.jpg`;
+const generateType = () => OfferType[Object.keys(OfferType)[Math.floor(Math.random() * Object.keys(OfferType).length)]];
+const generateDescription = () => shuffle(SENTENCES).slice(1, 5).join(` `);
+const generateSum = () => getRandomInt(SumRestrict.MIN, SumRestrict.MAX);
+const generatePictureFileName = () => {
+  const numberPicture = getRandomInt(PictureRestrict.MIN, PictureRestrict.MAX);
+  return `item${numberPicture < DEFAULT_NUMBERS.TEN ? `0${numberPicture}` : numberPicture}.jpg`;
+};
+const generateText = (texts) => texts[getRandomInt(0, texts.length - 1)];
 
 const generateOffers = (count) => {
   return Array(count).fill({}).map(() => ({
-    type: OfferType[Object.keys(OfferType)[Math.floor(Math.random() * Object.keys(OfferType).length)]],
-    title: TITLES[getRandomInt(0, TITLES.length - 1)],
-    description: shuffle(SENTENCES).slice(1, 5).join(` `),
-    sum: getRandomInt(SumRestrict.MIN, SumRestrict.MAX),
-    picture: getPictureFileName(getRandomInt(PictureRestrict.MIN, PictureRestrict.MAX)),
-    category: [CATEGORIES[getRandomInt(0, CATEGORIES.length - 1)]],
+    type: generateType(),
+    title: generateText(TITLES),
+    description: generateDescription(),
+    sum: generateSum(),
+    picture: generatePictureFileName(),
+    category: generateText(CATEGORIES),
   }));
 };
 
@@ -78,14 +85,10 @@ module.exports = {
   run(args) {
     const [count] = args;
     const countOffer = Number.parseInt(count, 10) || DEFAULT_NUMBERS.DEFAULT_COUNT;
-    const content = JSON.stringify(generateOffers(countOffer));
-
-    fs.writeFile(FILE_NAME, content, (err) => {
-      if (err) {
-        return console.error(`Can't write data to file...`);
-      }
-
-      return console.info(`Operation success. File created.`);
-    });
+    if (countOffer < DEFAULT_NUMBERS.MAX_COUNT_OFFERS) {
+      writeFileJson(FILE_NAME, generateOffers(countOffer));
+    } else {
+      console.info(`Не больше 1000 объявлений`);
+    }
   }
 };
