@@ -1,6 +1,7 @@
 'use strict';
 
 const {getRandomInt, shuffle, writeFileJson} = require(`../../utils`);
+const chalk = require(`chalk`);
 
 const DEFAULT_NUMBERS = {
   DEFAULT_COUNT: 1,
@@ -82,13 +83,13 @@ const generateOffers = (count) => {
 
 module.exports = {
   name: `--generate`,
-  run(args) {
+  async run(args) {
     const [count] = args;
     const countOffer = Number.parseInt(count, 10) || DEFAULT_NUMBERS.DEFAULT_COUNT;
     if (countOffer < DEFAULT_NUMBERS.MAX_COUNT_OFFERS) {
-      writeFileJson(FILE_NAME, generateOffers(countOffer));
+      await writeFileJson(FILE_NAME, generateOffers(countOffer));
     } else {
-      console.info(`Не больше 1000 объявлений`);
+      console.info(chalk.red(`Не больше 1000 объявлений`));
     }
   }
 };
