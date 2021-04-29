@@ -28,8 +28,21 @@ const writeFileJson = async (filename, offers) => {
   });
 };
 
+const readContent = async (filePath) => {
+  await fs.readFile(filePath, `utf8`, (err, data) => {
+    if (err) {
+      console.error(chalk.red(err));
+      return [];
+    }
+    return data.split(`\n`);
+  });
+};
+
 module.exports = {
   getRandomInt,
   shuffle,
-  writeFileJson
+  writeFileJson,
+  readContent
 };
+
+// node ./src/service/service.js --version
