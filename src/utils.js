@@ -1,6 +1,7 @@
 'use strict';
 
 const fs = require(`fs`);
+const chalk = require(`chalk`);
 
 const getRandomInt = (min, max) => {
   min = Math.ceil(min);
@@ -17,20 +18,31 @@ const shuffle = (someArray) => {
   return someArray;
 };
 
-const writeFileJson = (filename, offers) => {
+const writeFileJson = async (filename, offers) => {
   const content = JSON.stringify(offers);
-
-  fs.writeFileSync(filename, content, (err) => {
+  await fs.writeFile(filename, content, (err) => {
     if (err) {
-      return console.error(`Can't write data to file...`);
+      return console.error(chalk.red(`Can't write data to file...`, err));
     }
+    return console.info(chalk.green(`Operation success. File created.`));
+  });
+};
 
-    return console.info(`Operation success. File created.`);
+const readContent = async (filePath) => {
+  await fs.readFile(filePath, `utf8`, (err, data) => {
+    if (err) {
+      console.error(chalk.red(err));
+      return [];
+    }
+    return data.split(`\n`);
   });
 };
 
 module.exports = {
   getRandomInt,
   shuffle,
-  writeFileJson
+  writeFileJson,
+  readContent
 };
+
+// node ./src/service/service.js --version
